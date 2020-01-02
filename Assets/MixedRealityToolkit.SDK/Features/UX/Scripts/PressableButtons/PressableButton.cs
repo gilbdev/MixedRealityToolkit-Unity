@@ -140,6 +140,8 @@ namespace Microsoft.MixedReality.Toolkit.UI
 
         private Dictionary<IMixedRealityController, Vector3> touchPoints = new Dictionary<IMixedRealityController, Vector3>();
 
+        private List<IMixedRealityController> touchPointsToRemove = new List<IMixedRealityController>();
+        
         private List<IMixedRealityInputSource> currentInputSources = new List<IMixedRealityInputSource>();
 
         private float currentPushDistance = 0.0f;
@@ -334,6 +336,15 @@ namespace Microsoft.MixedReality.Toolkit.UI
                     UpdatePressedState(currentPushDistance);
                 }
             }
+            
+            if(touchPointsToRemove.Count > 0)
+            {
+                foreach( var touchPoint in touchPointsToRemove)
+                {
+                    touchPoints.Remove(touchPoint);
+                }
+                IsTouching = (touchPoints.Count > 0);
+            }
         }
 
         #region IMixedRealityTouchHandler implementation
@@ -412,10 +423,13 @@ namespace Microsoft.MixedReality.Toolkit.UI
         {
             if (touchPoints.ContainsKey(eventData.Controller))
             {
-                touchPoints.Remove(eventData.Controller);
+                //update one last time
+                touchPoints[eventData.Controller] = eventData.InputData;
+
+                //then clean up (deferred in update)
+                touchPointsToRemove.Add(eventData.Controller);
                 currentInputSources.Remove(eventData.InputSource);
 
-                IsTouching = (touchPoints.Count > 0);
                 eventData.Use();
             }
         }
