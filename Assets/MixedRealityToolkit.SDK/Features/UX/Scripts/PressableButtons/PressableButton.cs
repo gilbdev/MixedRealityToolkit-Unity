@@ -343,6 +343,8 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 {
                     touchPoints.Remove(touchPoint);
                 }
+                touchPointsToRemove.Clear();
+                
                 IsTouching = (touchPoints.Count > 0);
             }
         }
